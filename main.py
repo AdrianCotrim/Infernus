@@ -30,6 +30,8 @@ def main():
     ]
 
     while running:
+        dt = clock.tick(60) / 1000
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
@@ -41,14 +43,13 @@ def main():
                     player.soltar_pulo()
 
         keys = pygame.key.get_pressed()
-        player.atualizar(keys, platforms, WIDTH)
+        player.atualizar(keys, platforms, WIDTH, dt)
 
         screen.fill((20, 20, 30))
         for platform in platforms:
             pygame.draw.rect(screen, (220, 220, 220), platform)
         pygame.draw.rect(screen, (255, 220, 60), player.rect)
         pygame.display.flip()
-        clock.tick(60)
 
     pygame.quit()
 
