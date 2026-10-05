@@ -30,6 +30,9 @@ def main():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     player.registrar_pulo()
+            elif event.type == pygame.KEYUP:
+                if event.key == pygame.K_SPACE:
+                    player.soltar_pulo()
 
         keys = pygame.key.get_pressed()
         player.atualizar(keys, platform, WIDTH)

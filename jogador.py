@@ -7,6 +7,8 @@ PLAYER_SPEED = 6
 GRAVITY = 0.7
 JUMP_FORCE = 15
 JUMP_BUFFER_TIME = 0.12
+JUMP_HOLD_TIME = 0.15
+JUMP_CUT_MULTIPLIER = 0.5
 
 
 class Jogador:
@@ -15,9 +17,28 @@ class Jogador:
         self.velocidade_y = 0
         self.no_chao = True
         self.jump_buffer_started_at = None
+        self.jump_held = False
+        self.jump_started_at = None
 
     def registrar_pulo(self):
+        self.jump_held = True
         self.jump_buffer_started_at = pygame.time.get_ticks()
+
+    def soltar_pulo(self):
+        self.jump_held = False
+        if self.jump_started_at is None or self.velocidade_y >= 0:
+            return
+
+        elapsed = pygame.time.get_ticks() - self.jump_started_at
+        if elapsed < JUMP_HOLD_TIME * 1000:
+            self.velocidade_y *= JUMP_CUT_MULTIPLIER
+
+    def _iniciar_pulo(self):
+        self.velocidade_y = -JUMP_FORCE
+        self.no_chao = False
+        self.jump_started_at = pygame.time.get_ticks()
+        if not self.jump_held:
+            self.velocidade_y *= JUMP_CUT_MULTIPLIER
 
     def _consumir_buffer_se_puder_pular(self):
         if self.jump_buffer_started_at is None:
@@ -29,8 +50,7 @@ class Jogador:
             return
 
         if self.no_chao:
-            self.velocidade_y = -JUMP_FORCE
-            self.no_chao = False
+            self._iniciar_pulo()
             self.jump_buffer_started_at = None
 
     def atualizar(self, teclas, plataforma, largura_tela):
