@@ -53,7 +53,7 @@ class Jogador:
             self._iniciar_pulo()
             self.jump_buffer_started_at = None
 
-    def atualizar(self, teclas, plataforma, largura_tela):
+    def atualizar(self, teclas, plataformas, largura_tela):
         if teclas[pygame.K_a] or teclas[pygame.K_LEFT]:
             velocidade_x = -PLAYER_SPEED
         elif teclas[pygame.K_d] or teclas[pygame.K_RIGHT]:
@@ -70,14 +70,16 @@ class Jogador:
         self.rect.y += self.velocidade_y
 
         self.no_chao = False
-        if self.rect.colliderect(plataforma):
+        for plataforma in plataformas:
             if (
-                self.velocidade_y >= 0
+                self.rect.colliderect(plataforma)
+                and self.velocidade_y >= 0
                 and self.rect.bottom >= plataforma.top
                 and self.rect.bottom <= plataforma.top + 30
             ):
                 self.rect.bottom = plataforma.top
                 self.velocidade_y = 0
                 self.no_chao = True
+                break
 
         self._consumir_buffer_se_puder_pular()
