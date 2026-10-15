@@ -3,12 +3,21 @@ from typing import Protocol
 
 import pygame
 
-from inimigo import ENEMY_ATTACK_DAMAGE, STUN_DURATION
+from inimigo import ENEMY_ATTACK_DAMAGE, ENEMY_ATTACK_KNOCKBACK, STUN_DURATION
 from jogador import EstadoJogador, Jogador
 
 
 class InimigoAtordoavel(Protocol):
+    rect: pygame.Rect
+    ataque_atingiu_jogador: bool
+    ataque_direcao: int
+    ataque_damage: int
+    ataque_knockback: float
+
     def aplicar_stun(self, duracao: float) -> None:
+        ...
+
+    def cancelar_ataque(self) -> None:
         ...
 
 
@@ -28,9 +37,16 @@ class SistemaParry:
         if ataque_rect is None or not ataque_rect.colliderect(jogador.rect):
             return ResultadoAtaque.SEM_ACERTO
 
+        if getattr(inimigo, "ataque_atingiu_jogador", False):
+            return ResultadoAtaque.SEM_ACERTO
+
         if jogador.estado is EstadoJogador.PARRYING:
-            inimigo.aplicar_stun(STUN_DURATION)
+            inimigo.cancelar_ataque()
             return ResultadoAtaque.APARADO
 
-        jogador.take_damage(ENEMY_ATTACK_DAMAGE)
+        dano = getattr(inimigo, "ataque_damage", ENEMY_ATTACK_DAMAGE)
+        direcao = getattr(inimigo, "ataque_direcao", 1 if inimigo.rect.centerx < jogador.rect.centerx else -1)
+        knockback = getattr(inimigo, "ataque_knockback", ENEMY_ATTACK_KNOCKBACK)
+        jogador.take_damage(dano, direcao, knockback)
+        inimigo.ataque_atingiu_jogador = True
         return ResultadoAtaque.DANO
