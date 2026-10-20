@@ -16,9 +16,14 @@ COYOTE_TIME = 0.10
 JUMP_BUFFER_TIME = 0.12
 JUMP_HOLD_TIME = 0.15
 JUMP_CUT_MULTIPLIER = 0.5
+<<<<<<< HEAD
 KNOCKBACK_SPEED = 10
 KNOCKBACK_VERTICAL_FORCE = 8
 KNOCKBACK_DURATION = 0.25
+=======
+INVULNERABILITY_DURATION = 0.5
+KNOCKBACK_DECELERATION = 1200
+>>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
 
 
 class EstadoJogador(Enum):
@@ -32,6 +37,7 @@ class Jogador:
     def __init__(self, x, y):
         self.rect = pygame.Rect(x, y, PLAYER_WIDTH, PLAYER_HEIGHT)
         self.vida = 5
+        self.max_vida = 5
         self.estado = EstadoJogador.NORMAL
         self.tempo_estado = 0.0
         self.direcao = 1
@@ -41,12 +47,15 @@ class Jogador:
         self.dash_cooldown_timer = 0.0
         self.velocidade_knockback_x = 0
         self.velocidade_y = 0
+        self.velocidade_knockback_x = 0.0
+        self.invulnerabilidade_timer = 0.0
         self.no_chao = True
         self.coyote_timer = 0.0
         self.jump_buffer_started_at = None
         self.jump_held = False
         self.jump_started_at = None
 
+<<<<<<< HEAD
     def take_damage(self, amount, direcao_impacto=1):
         self.vida = max(0, self.vida - amount)
         self.aplicar_knockback(direcao_impacto)
@@ -64,6 +73,46 @@ class Jogador:
         self.velocidade_knockback_x = direcao * velocidade_x
         self.velocidade_y = -impulso_y
         self.no_chao = False
+=======
+    @property
+    def invulneravel(self):
+        return self.invulnerabilidade_timer > 0
+
+    @property
+    def piscando(self):
+        if not self.invulneravel:
+            return False
+        return int(self.invulnerabilidade_timer * 20) % 2 == 0
+
+    def take_damage(self, amount, direction=0, knockback=0.0, duration=None):
+        if self.invulneravel or amount <= 0:
+            return False
+
+        self.vida = max(0, self.vida - amount)
+        if direction or knockback:
+            self.apply_knockback(direction, knockback)
+        self.invulnerabilidade_timer = INVULNERABILITY_DURATION if duration is None else duration
+        return True
+
+    def apply_knockback(self, direction, force):
+        self.velocidade_knockback_x = direction * force
+
+    def _atualizar_knockback(self, dt):
+        if self.velocidade_knockback_x > 0:
+            self.velocidade_knockback_x = max(
+                0.0,
+                self.velocidade_knockback_x - KNOCKBACK_DECELERATION * dt,
+            )
+        elif self.velocidade_knockback_x < 0:
+            self.velocidade_knockback_x = min(
+                0.0,
+                self.velocidade_knockback_x + KNOCKBACK_DECELERATION * dt,
+            )
+
+    def _atualizar_invulnerabilidade(self, dt):
+        if self.invulnerabilidade_timer > 0:
+            self.invulnerabilidade_timer = max(0.0, self.invulnerabilidade_timer - dt)
+>>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
 
     @property
     def dash_disponivel(self):
@@ -192,6 +241,7 @@ class Jogador:
             return bool(teclas[chave])
 
         self._atualizar_dash_cooldown(dt)
+        self._atualizar_invulnerabilidade(dt)
 
         if self.estado is EstadoJogador.NORMAL:
             self._atualizar_normal(tecla_pressionada, largura_tela)
@@ -201,6 +251,10 @@ class Jogador:
             self._atualizar_parrying(tecla_pressionada, largura_tela, dt)
         elif self.estado is EstadoJogador.KNOCKBACK:
             self._atualizar_knockback(largura_tela, dt)
+
+        self.rect.x += round(self.velocidade_knockback_x * dt)
+        self.rect.x = max(0, min(largura_tela - self.rect.width, self.rect.x))
+        self._atualizar_knockback(dt)
 
         if self.no_chao:
             self.coyote_timer = COYOTE_TIME

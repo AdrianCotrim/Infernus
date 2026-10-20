@@ -17,6 +17,7 @@ DASH_HITBOX_COLOR = (255, 60, 80, 110)
 TEST_TARGET_COLOR = (180, 80, 220)
 ENEMY_COLOR = (210, 75, 85)
 STUNNED_ENEMY_COLOR = (255, 235, 80)
+ENEMY_WINDUP_FLASH_COLOR = (255, 255, 255)
 ENEMY_ATTACK_COLOR = (255, 120, 60, 120)
 
 PLATFORM_WIDTH = WIDTH
@@ -83,6 +84,13 @@ def main():
             player.interromper_dash()
         test_target.atualizar(dt)
         enemy_attack = enemy.atualizar(dt, player.rect)
+        if enemy.rect.colliderect(player.rect) and enemy.vivo and enemy.contato_cooldown == 0:
+            player.take_damage(
+                1,
+                1 if enemy.rect.centerx < player.rect.centerx else -1,
+                200,
+            )
+            enemy.contato_cooldown = 0.5
         attack_result = parry_system.resolver(enemy_attack, player, enemy)
 
         screen.fill((20, 20, 30))
@@ -92,6 +100,8 @@ def main():
         enemy_color = (
             STUNNED_ENEMY_COLOR
             if enemy.estado is EstadoInimigo.STUNNED
+            else ENEMY_WINDUP_FLASH_COLOR
+            if enemy.piscando_preparacao
             else ENEMY_COLOR
         )
         pygame.draw.rect(screen, enemy_color, enemy.rect)
@@ -108,6 +118,8 @@ def main():
             player_color = ENEMY_ATTACK_COLOR[:3]
         elif not player.dash_disponivel:
             player_color = DASH_COOLDOWN_COLOR
+        if player.invulneravel and player.piscando:
+            player_color = (255, 255, 255)
         pygame.draw.rect(screen, player_color, player.rect)
         if dash_hitbox.rect is not None:
             hitbox_surface = pygame.Surface(
