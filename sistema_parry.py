@@ -19,6 +19,16 @@ class ResultadoAtaque(Enum):
 
 
 class SistemaParry:
+    @staticmethod
+    def _direcao_knockback(ataque_rect, jogador, inimigo):
+        if inimigo.rect.centerx < jogador.rect.centerx:
+            return 1
+        if inimigo.rect.centerx > jogador.rect.centerx:
+            return -1
+
+        direcao_inimigo = getattr(inimigo, "direcao", 1)
+        return 1 if direcao_inimigo >= 0 else -1
+
     def resolver(
         self,
         ataque_rect: pygame.Rect | None,
@@ -32,5 +42,6 @@ class SistemaParry:
             inimigo.aplicar_stun(STUN_DURATION)
             return ResultadoAtaque.APARADO
 
-        jogador.take_damage(ENEMY_ATTACK_DAMAGE)
+        direcao_knockback = self._direcao_knockback(ataque_rect, jogador, inimigo)
+        jogador.take_damage(ENEMY_ATTACK_DAMAGE, direcao_knockback)
         return ResultadoAtaque.DANO

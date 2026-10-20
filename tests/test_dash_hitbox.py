@@ -55,6 +55,26 @@ def test_hitbox_can_hit_target_without_physical_player_collision():
     assert target.knockbacks == [(1, DASH_KNOCKBACK)]
 
 
+def test_dash_hit_stops_player_before_target_and_reports_impact():
+    player = Jogador(100, 100)
+    player.iniciar_dash()
+    target = DummyTarget(pygame.Rect(150, 100, 40, 50))
+    hitbox = HitboxDash()
+    hitbox.atualizar(player.rect, player.direcao_dash, ativa=True)
+    system = SistemaAtaqueDash()
+
+    impact = system.atualizar(
+        target.rect,
+        player.direcao_dash,
+        [target],
+        player.rect,
+    )
+
+    assert impact
+    assert player.rect.right == target.rect.left
+    assert target.damage_taken == [DASH_DAMAGE]
+
+
 def test_target_is_hit_only_once_per_dash_and_can_be_hit_again_afterward():
     hitbox = HitboxDash()
     player_rect = pygame.Rect(100, 100, 40, 60)

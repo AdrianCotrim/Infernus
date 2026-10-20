@@ -26,11 +26,13 @@ class SistemaAtaqueDash:
         hitbox: pygame.Rect | None,
         direcao: int,
         alvos: Iterable[AlvoAtacavel],
-    ) -> None:
+        jogador_rect: pygame.Rect | None = None,
+    ) -> bool:
         if hitbox is None:
             self._alvos_atingidos.clear()
-            return
+            return False
 
+        acertou = False
         for alvo in alvos:
             alvo_id = id(alvo)
             if alvo_id in self._alvos_atingidos:
@@ -38,6 +40,14 @@ class SistemaAtaqueDash:
             if not hitbox.colliderect(alvo.rect):
                 continue
 
+            if jogador_rect is not None:
+                if direcao > 0:
+                    jogador_rect.right = alvo.rect.left
+                else:
+                    jogador_rect.left = alvo.rect.right
             alvo.take_damage(DASH_DAMAGE)
             alvo.apply_knockback(direcao, DASH_KNOCKBACK)
             self._alvos_atingidos.add(alvo_id)
+            acertou = True
+
+        return acertou

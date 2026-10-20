@@ -4,6 +4,8 @@ import pytest
 from jogador import (
     DASH_COOLDOWN,
     DASH_DURATION,
+    KNOCKBACK_DURATION,
+    KNOCKBACK_SPEED,
     PLAYER_DASH_SPEED,
     PLAYER_SPEED,
     PARRY_DURATION,
@@ -29,6 +31,28 @@ def test_normal_movement_and_jump_remain_available():
 
     assert player.velocidade_y < 0
     assert player.estado is EstadoJogador.NORMAL
+
+
+def test_damage_knocks_player_away_and_blocks_horizontal_control_temporarily():
+    player = Jogador(100, 100)
+    player.take_damage(1, direcao_impacto=-1)
+
+    player.atualizar({pygame.K_d: True}, [], 800, dt=KNOCKBACK_DURATION / 2)
+
+    assert player.rect.x == 100 - KNOCKBACK_SPEED
+    assert player.estado is EstadoJogador.KNOCKBACK
+
+
+def test_control_returns_after_knockback_without_horizontal_velocity_residue():
+    player = Jogador(100, 100)
+    player.take_damage(1, direcao_impacto=1)
+    player.atualizar({}, [], 800, dt=KNOCKBACK_DURATION)
+
+    assert player.estado is EstadoJogador.NORMAL
+    assert player.velocidade_knockback_x == 0
+
+    player.atualizar({pygame.K_d: True}, [], 800, dt=0)
+    assert player.rect.x == 100 + KNOCKBACK_SPEED + PLAYER_SPEED
 
 
 def test_dash_moves_in_the_facing_direction_and_expires():

@@ -16,12 +16,16 @@ COYOTE_TIME = 0.10
 JUMP_BUFFER_TIME = 0.12
 JUMP_HOLD_TIME = 0.15
 JUMP_CUT_MULTIPLIER = 0.5
+KNOCKBACK_SPEED = 10
+KNOCKBACK_VERTICAL_FORCE = 8
+KNOCKBACK_DURATION = 0.25
 
 
 class EstadoJogador(Enum):
     NORMAL = auto()
     DASHING = auto()
     PARRYING = auto()
+    KNOCKBACK = auto()
 
 
 class Jogador:
@@ -35,6 +39,7 @@ class Jogador:
         self.tempo_dash_decorrido = 0.0
         self.distancia_dash_aplicada = 0
         self.dash_cooldown_timer = 0.0
+        self.velocidade_knockback_x = 0
         self.velocidade_y = 0
         self.no_chao = True
         self.coyote_timer = 0.0
@@ -42,8 +47,23 @@ class Jogador:
         self.jump_held = False
         self.jump_started_at = None
 
-    def take_damage(self, amount):
+    def take_damage(self, amount, direcao_impacto=1):
         self.vida = max(0, self.vida - amount)
+        self.aplicar_knockback(direcao_impacto)
+
+    def aplicar_knockback(
+        self,
+        direcao_impacto,
+        velocidade_x=KNOCKBACK_SPEED,
+        impulso_y=KNOCKBACK_VERTICAL_FORCE,
+        duracao=KNOCKBACK_DURATION,
+    ):
+        direcao = 1 if direcao_impacto >= 0 else -1
+        self.estado = EstadoJogador.KNOCKBACK
+        self.tempo_estado = duracao
+        self.velocidade_knockback_x = direcao * velocidade_x
+        self.velocidade_y = -impulso_y
+        self.no_chao = False
 
     @property
     def dash_disponivel(self):
@@ -60,6 +80,15 @@ class Jogador:
         self.tempo_dash_decorrido = 0.0
         self.distancia_dash_aplicada = 0
 
+    def interromper_dash(self):
+        if self.estado is not EstadoJogador.DASHING:
+            return
+
+        self.estado = EstadoJogador.NORMAL
+        self.tempo_estado = 0.0
+        self.tempo_dash_decorrido = 0.0
+        self.distancia_dash_aplicada = 0
+
     def iniciar_parry(self):
         if self.estado is not EstadoJogador.NORMAL:
             return
@@ -68,6 +97,8 @@ class Jogador:
         self.tempo_estado = PARRY_DURATION
 
     def registrar_pulo(self):
+        if self.estado is EstadoJogador.KNOCKBACK:
+            return
         self.jump_held = True
         self.jump_buffer_started_at = pygame.time.get_ticks()
 
@@ -142,6 +173,14 @@ class Jogador:
         if self.tempo_estado == 0:
             self.estado = EstadoJogador.NORMAL
 
+    def _atualizar_knockback(self, largura_tela, dt):
+        self.rect.x += self.velocidade_knockback_x
+        self.rect.x = max(0, min(largura_tela - self.rect.width, self.rect.x))
+        self.tempo_estado = max(0.0, self.tempo_estado - dt)
+        if self.tempo_estado == 0:
+            self.estado = EstadoJogador.NORMAL
+            self.velocidade_knockback_x = 0
+
     def _atualizar_dash_cooldown(self, dt):
         if self.dash_cooldown_timer > 0:
             self.dash_cooldown_timer = max(0.0, self.dash_cooldown_timer - dt)
@@ -160,6 +199,8 @@ class Jogador:
             self._atualizar_dashing(largura_tela, dt)
         elif self.estado is EstadoJogador.PARRYING:
             self._atualizar_parrying(tecla_pressionada, largura_tela, dt)
+        elif self.estado is EstadoJogador.KNOCKBACK:
+            self._atualizar_knockback(largura_tela, dt)
 
         if self.no_chao:
             self.coyote_timer = COYOTE_TIME
@@ -168,7 +209,8 @@ class Jogador:
         else:
             self.coyote_timer = 0.0
 
-        self._consumir_buffer_se_puder_pular()
+        if self.estado is not EstadoJogador.KNOCKBACK:
+            self._consumir_buffer_se_puder_pular()
 
         self.velocidade_y += GRAVITY
         self.rect.y += self.velocidade_y
@@ -189,4 +231,5 @@ class Jogador:
         if self.no_chao:
             self.coyote_timer = COYOTE_TIME
 
-        self._consumir_buffer_se_puder_pular()
+        if self.estado is not EstadoJogador.KNOCKBACK:
+            self._consumir_buffer_se_puder_pular()

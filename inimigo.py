@@ -11,6 +11,7 @@ ENEMY_ATTACK_WIDTH = 34
 ENEMY_ATTACK_COOLDOWN = 0.8
 ENEMY_ATTACK_DAMAGE = 1
 STUN_DURATION = 2.0
+ENEMY_KNOCKBACK_DECELERATION = 1200
 
 
 class EstadoInimigo(Enum):
@@ -21,14 +22,35 @@ class EstadoInimigo(Enum):
 class Inimigo:
     def __init__(self, x, y):
         self.rect = pygame.Rect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT)
+        self.vida = 3
         self.estado = EstadoInimigo.NORMAL
         self.tempo_atordoado = 0.0
         self.tempo_ataque = 0.0
         self.direcao = -1
+        self.velocidade_knockback_x = 0.0
 
     def aplicar_stun(self, duracao=STUN_DURATION):
         self.estado = EstadoInimigo.STUNNED
         self.tempo_atordoado = duracao
+
+    def take_damage(self, amount):
+        self.vida = max(0, self.vida - amount)
+
+    def apply_knockback(self, direction, force):
+        self.velocidade_knockback_x = direction * force
+
+    def _atualizar_knockback(self, dt):
+        self.rect.x += round(self.velocidade_knockback_x * dt)
+        if self.velocidade_knockback_x > 0:
+            self.velocidade_knockback_x = max(
+                0.0,
+                self.velocidade_knockback_x - ENEMY_KNOCKBACK_DECELERATION * dt,
+            )
+        elif self.velocidade_knockback_x < 0:
+            self.velocidade_knockback_x = min(
+                0.0,
+                self.velocidade_knockback_x + ENEMY_KNOCKBACK_DECELERATION * dt,
+            )
 
     def _atualizar_stun(self, dt):
         self.tempo_atordoado = max(0.0, self.tempo_atordoado - dt)
@@ -49,8 +71,15 @@ class Inimigo:
         return hitbox
 
     def atualizar(self, dt, jogador_rect):
+        if self.vida == 0:
+            return None
+
         if self.estado is EstadoInimigo.STUNNED:
             self._atualizar_stun(dt)
+            return None
+
+        if self.velocidade_knockback_x != 0:
+            self._atualizar_knockback(dt)
             return None
 
         distancia = jogador_rect.centerx - self.rect.centerx

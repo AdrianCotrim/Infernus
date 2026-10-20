@@ -73,11 +73,14 @@ def main():
             player.direcao_dash,
             player.estado is EstadoJogador.DASHING,
         )
-        dash_attack.atualizar(
+        dash_acertou = dash_attack.atualizar(
             dash_hitbox.rect,
             player.direcao_dash,
-            [test_target],
+            [enemy],
+            player.rect,
         )
+        if dash_acertou:
+            player.interromper_dash()
         test_target.atualizar(dt)
         enemy_attack = enemy.atualizar(dt, player.rect)
         attack_result = parry_system.resolver(enemy_attack, player, enemy)
@@ -101,6 +104,8 @@ def main():
             player_color = DASH_COLOR
         elif player.estado is EstadoJogador.PARRYING:
             player_color = PARRY_COLOR
+        elif player.estado is EstadoJogador.KNOCKBACK:
+            player_color = ENEMY_ATTACK_COLOR[:3]
         elif not player.dash_disponivel:
             player_color = DASH_COOLDOWN_COLOR
         pygame.draw.rect(screen, player_color, player.rect)

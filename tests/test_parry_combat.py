@@ -7,7 +7,7 @@ from inimigo import (
     EstadoInimigo,
     Inimigo,
 )
-from jogador import Jogador, PARRY_DURATION
+from jogador import EstadoJogador, Jogador, PARRY_DURATION
 from sistema_parry import ResultadoAtaque, SistemaParry
 
 
@@ -44,6 +44,8 @@ def test_attack_outside_parry_window_damages_player_without_stunning_enemy():
 
     assert result is ResultadoAtaque.DANO
     assert player.vida == 4
+    assert player.estado is EstadoJogador.KNOCKBACK
+    assert player.velocidade_knockback_x < 0
     assert enemy.estado is EstadoInimigo.NORMAL
 
 
@@ -93,3 +95,17 @@ def test_enemy_moves_toward_player_and_attacks_when_in_range():
 
     assert attack is not None
     assert attack.colliderect(player)
+
+
+def test_enemy_damage_and_knockback_stop_its_ai_until_impulse_ends():
+    player = pygame.Rect(200, 100, 40, 60)
+    enemy = Inimigo(150, 105)
+    enemy.take_damage(1)
+    enemy.apply_knockback(-1, 360)
+    initial_x = enemy.rect.x
+
+    attack = enemy.atualizar(0.05, player)
+
+    assert enemy.vida == 2
+    assert enemy.rect.x < initial_x
+    assert attack is None

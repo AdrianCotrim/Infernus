@@ -34,3 +34,15 @@ o jogador recebe dano. Inimigos atordoados não se movem nem atacam. Durante o
 dash, uma hitbox translúcida à frente do personagem pode atingir o alvo de teste,
 uma vez por dash, aplicando dano e knockback horizontal baseado em velocidade do
 próprio alvo. O alvo de teste existe para validar essa integração.
+
+Ao receber dano do inimigo, o jogador entra temporariamente em knockback:
+`KNOCKBACK_SPEED`, `KNOCKBACK_VERTICAL_FORCE` e `KNOCKBACK_DURATION`, em
+`jogador.py`, controlam a intensidade e a duração da reação. Durante esse estado,
+o impulso continua respeitando a gravidade e as colisões, mas o controle
+horizontal fica bloqueado até a recuperação automática.
+
+Durante o dash, acertar o inimigo interrompe imediatamente a investida e posiciona
+o jogador antes do inimigo, evitando atravessá-lo. O inimigo recebe `DASH_DAMAGE`
+e o knockback configurado por `DASH_KNOCKBACK` em `combate.py`; o cooldown do dash
+é preservado e o mesmo inimigo não pode ser atingido novamente pela mesma
+investida.
