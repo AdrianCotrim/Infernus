@@ -47,12 +47,20 @@ chefe:
 - O cenário é orgânico e apodrecido, em roxos e vinhos, com carne, veias e
   olhos.
 
+![Conceito do cenário: a protagonista iluminando uma caverna roxa cheia de criaturas](referencias/conceito-cenario.jpg)
+
 ### Protagonista
 
 Garota anja de cabelo ruivo e volumoso, com um cachecol vermelho de listras
 amarelas cobrindo a boca, casaco amarelo-alaranjado, saia vermelha, meias e
 botas marrons e um escudo redondo de madeira. O GDD já tem a sprite sheet de
 caminhada em quatro direções (direita, esquerda, de costas e de frente).
+
+| De frente | De perfil | Esboço |
+| --------- | --------- | ------ |
+| ![Protagonista de frente](referencias/personagem-frente.png) | ![Protagonista de perfil](referencias/personagem-perfil.png) | ![Esboço a lápis da protagonista](referencias/esboco-personagem.jpg) |
+
+![Sprite sheet de caminhada nas quatro direções, com escudo](referencias/personagem-caminhada.png)
 
 ## História e narrativa
 
@@ -90,10 +98,14 @@ O escudo é ao mesmo tempo **arma e defesa**.
 Conceito em aberto: **inimigo olho**, um globo ocular com veias vermelhas e
 um nervo pendurado.
 
+![Esboço do inimigo olho](referencias/inimigo-olho.png)
+
 ### Chefe
 
 Um **cérebro** com um olho no centro e uma figura presa a ele por veias. A
 luta acontece na sala do cérebro, no fim da área.
+
+![Esboço do chefe cérebro](referencias/chefe-cerebro.png)
 
 ## Mapa
 
@@ -118,13 +130,15 @@ flowchart LR
     Parkour --- Cerebro[Cérebro: luta contra o chefe]
 ```
 
+![Rascunho do mapa da área](referencias/mapa-rascunho.png)
+
 > O rascunho do mapa no GDD coloca um "Shield 3" ligado ao Pulmão 1 e outro
 > ligado ao Pulmão 2. Falta definir se são o mesmo escudo ou se um deles é
 > outro item.
 
 ## Tela de título
 
-Implementada em `tela_titulo.py`.
+Implementada em `infernus/telas/titulo.py`.
 
 - **Conceito:** a tela é a câmara do coração, o centro do mapa. Um coração
   em pixel art bate no meio, e cada batida manda um pulso de luz pelas veias
