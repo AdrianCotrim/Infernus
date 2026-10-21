@@ -1,7 +1,7 @@
 import pygame
 import pytest
 
-from tela_titulo import (
+from infernus.telas.titulo import (
     DURACAO_ENTRADA,
     DURACAO_SAIDA,
     FORCA_SEGUNDA_BATIDA,

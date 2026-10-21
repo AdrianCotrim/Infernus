@@ -1,0 +1,10 @@
+[project]
+name = "infernus"
+version = "0.1.0"
+description = "Metroidvania 2D em pixel art feito com Pygame."
+requires-python = ">=3.10"
+dependencies = ["pygame-ce>=2.5,<3"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

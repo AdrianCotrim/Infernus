@@ -1,6 +1,6 @@
 import pygame
 
-from inimigo import (
+from infernus.entidades.inimigo import (
     ENEMY_ATTACK_COOLDOWN,
     ENEMY_ATTACK_DURATION,
     ENEMY_ATTACK_RECOVERY,
@@ -11,8 +11,8 @@ from inimigo import (
     EstadoInimigo,
     Inimigo,
 )
-from jogador import EstadoJogador, Jogador, PARRY_DURATION
-from sistema_parry import ResultadoAtaque, SistemaParry
+from infernus.entidades.jogador import EstadoJogador, Jogador, PARRY_DURATION
+from infernus.combate.parry import ResultadoAtaque, SistemaParry
 
 
 def test_attack_during_parry_does_not_damage_player_and_stuns_enemy():

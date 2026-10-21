@@ -3,8 +3,8 @@ from typing import Protocol
 
 import pygame
 
-from inimigo import ENEMY_ATTACK_DAMAGE
-from jogador import EstadoJogador, Jogador
+from infernus.entidades.inimigo import ENEMY_ATTACK_DAMAGE
+from infernus.entidades.jogador import EstadoJogador, Jogador
 
 
 class InimigoAtordoavel(Protocol):
