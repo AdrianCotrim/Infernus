@@ -130,7 +130,7 @@ Implementada em `tela_titulo.py`.
   em pixel art bate no meio, e cada batida manda um pulso de luz pelas veias
   da câmara. Uma linha de eletrocardiograma corre embaixo.
 - **Sequência:**
-  1. **0 a 1,5 s:** a tela inteira surge do preto com um fade suave, com o
+  1. **0 a 2,5 s:** a tela inteira surge do preto com um fade suave, com o
      coração, o título e o "APERTE QUALQUER BOTÃO" juntos.
   2. **1,2 s:** primeira batida. A partir daí o ritmo é dobrado ("tum-tum"),
      a cerca de 70 batidas por minuto. O título pulsa e o aviso acende a cada
