@@ -52,9 +52,48 @@ python -m pytest
 | `sistema_parry.py` | Resolução dos ataques inimigos contra o parry. |
 | `hitbox.py`        | Hitbox do dash à frente do jogador. |
 | `alvo_teste.py`    | Alvo usado para validar a hitbox do dash. |
-| `assets/fonts/`    | Fontes da interface (licença SIL OFL). |
+| `tilemap.py`       | Carregamento CSV, camadas e conversão de GIDs do Tiled. |
+| `tilemap_renderer.py` | Interface opcional para desenhar tilesets em camadas. |
+| `assets/fonts/`     | Fontes da interface (licença SIL OFL). |
 | `docs/GDD.md`      | Game Design Document. |
 | `tests/`           | Testes automatizados (pytest). |
+
+## Mapas CSV do Tiled
+
+O módulo `tilemap.py` carrega uma camada exportada em CSV sem depender do
+Pygame:
+
+```python
+from tilemap import Tilemap
+
+tilemap = Tilemap(tile_size=(32, 32))
+tilemap.add_csv_layer("background", "maps/background.csv")
+tilemap.add_csv_layer("ground", "maps/ground.csv")
+tilemap.add_csv_layer("collision", "maps/collision.csv")
+tilemap.validate_dimensions()
+
+largura, altura = tilemap.layer_size("collision")
+gid = tilemap.cell("collision", 3, 4)
+```
+
+O valor armazenado é o GID global exportado pelo Tiled. O valor `0` representa
+uma célula vazia; ele não é convertido em índice de tileset. Para renderizar,
+é necessário fornecer a imagem e os metadados do tileset, incluindo `first_gid`,
+`tile_count`, `columns`, dimensões, espaçamento e margem:
+
+```python
+from tilemap_renderer import TilemapRenderer, Tileset
+from tilemap import TilesetMetadata
+
+metadata = TilesetMetadata(1, 256, 16, 32, 32)
+tileset = Tileset.from_file("assets/tileset.png", metadata)
+TilemapRenderer().draw_layer(screen, tilemap, "ground", tileset)
+```
+
+O jogo ainda não carrega mapas automaticamente: `main.py` mantém as
+plataformas de teste como comportamento padrão até uma fase real e um tileset
+serem exportados. A renderização aceita um `camera_rect`, mas o projeto ainda
+não possui um sistema de câmera próprio.
 
 ## Tela de título
 
