@@ -130,16 +130,13 @@ Implementada em `tela_titulo.py`.
   em pixel art bate no meio, e cada batida manda um pulso de luz pelas veias
   da câmara. Uma linha de eletrocardiograma corre embaixo.
 - **Sequência:**
-  1. **0 a 1,2 s:** silêncio. A câmara está escura, o coração aparece
-     apagado e o eletrocardiograma corre reto.
+  1. **0 a 1,5 s:** a tela inteira surge do preto com um fade suave, com o
+     coração, o título e o "APERTE QUALQUER BOTÃO" juntos.
   2. **1,2 s:** primeira batida. A partir daí o ritmo é dobrado ("tum-tum"),
-     a cerca de 70 batidas por minuto.
-  3. **Terceira batida:** o título "INFERNUS" aparece com um flash e passa a
-     pulsar no ritmo.
-  4. **4,6 s:** aparece o "APERTE QUALQUER BOTÃO", que acende a cada batida.
-- **Qualquer botão** vale tecla, clique do mouse ou botão de controle.
-  Durante a introdução, o primeiro aperto pula direto para o título. Com o
-  aviso na tela, apertar escurece a tela e inicia o jogo.
+     a cerca de 70 batidas por minuto. O título pulsa e o aviso acende a cada
+     batida.
+- **Qualquer botão** vale tecla, clique do mouse ou botão de controle. Apertar
+  escurece a tela com um fade e inicia o jogo.
 - **Pixel art:** a cena é desenhada em 320×180 e ampliada 4× para 1280×720,
   para que todos os pixels tenham o mesmo tamanho.
 - **Fontes:** Jersey 25 no título e Silkscreen no aviso, as duas sob a

@@ -58,15 +58,14 @@ python -m pytest
 
 ## Tela de título
 
-A tela de título é a câmara do coração, a sala central do mapa. Depois de um
-momento de silêncio, o coração começa a bater em ritmo dobrado ("tum-tum"). Cada
-batida manda um pulso de luz pelas veias da câmara e desenha um pico no
-eletrocardiograma embaixo da tela. O título aparece na terceira batida e passa a
-pulsar no ritmo. Logo depois surge o "APERTE QUALQUER BOTÃO".
+A tela de título é a câmara do coração, a sala central do mapa. Ela surge do
+preto com um fade suave, já com o título e o "APERTE QUALQUER BOTÃO". Em seguida
+o coração começa a bater em ritmo dobrado ("tum-tum"). Cada batida manda um pulso
+de luz pelas veias da câmara, desenha um pico no eletrocardiograma embaixo da
+tela e faz o título pulsar.
 
-- Qualquer tecla, clique do mouse ou botão de controle avança.
-- Durante a introdução, o primeiro aperto pula direto para o título.
-- Com o aviso na tela, apertar escurece a tela e inicia o jogo.
+Qualquer tecla, clique do mouse ou botão de controle escurece a tela e inicia o
+jogo.
 
 A cena é desenhada em 320×180 e ampliada 4× para 1280×720, para manter os pixels
 do mesmo tamanho. Os tempos, as cores e as posições são constantes no topo de

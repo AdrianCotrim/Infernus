@@ -2,10 +2,9 @@ import pygame
 import pytest
 
 from tela_titulo import (
+    DURACAO_ENTRADA,
     DURACAO_SAIDA,
     FORCA_SEGUNDA_BATIDA,
-    INSTANTE_AVISO,
-    INSTANTE_TITULO,
     PRIMEIRA_BATIDA,
     TelaTitulo,
     altura_ecg,
@@ -34,43 +33,47 @@ def test_heartbeat_window_only_returns_recent_beats():
     assert all(tempo - 1.0 <= instante <= tempo for instante, _ in recentes)
 
 
-def test_title_appears_on_third_heartbeat():
+def test_screen_fades_in_from_black():
     tela = TelaTitulo()
-    tela.atualizar(INSTANTE_TITULO - 0.01)
 
-    assert not tela.titulo_visivel
+    assert tela.opacidade_preto == 1
 
-    tela.atualizar(0.02)
+    tela.atualizar(DURACAO_ENTRADA / 2)
 
-    assert tela.titulo_visivel
-    assert not tela.aviso_visivel
+    assert 0 < tela.opacidade_preto < 1
+
+    tela.atualizar(DURACAO_ENTRADA / 2)
+
+    assert tela.opacidade_preto == 0
 
 
-def test_button_during_intro_skips_to_full_title():
+def test_button_fades_out_and_finishes():
     tela = TelaTitulo()
-    tela.atualizar(0.5)
-    tela.processar_botao()
-
-    assert tela.titulo_visivel
-    assert tela.aviso_visivel
-    assert not tela.saindo
-
-
-def test_button_with_prompt_visible_fades_out_and_finishes():
-    tela = TelaTitulo()
-    tela.atualizar(INSTANTE_AVISO)
+    tela.atualizar(DURACAO_ENTRADA)
     tela.processar_botao()
     tela.atualizar(DURACAO_SAIDA / 2)
 
     assert tela.saindo
     assert not tela.concluida
+    assert 0 < tela.opacidade_preto < 1
 
     tela.atualizar(DURACAO_SAIDA / 2)
 
     assert tela.concluida
+    assert tela.opacidade_preto == 1
 
 
-@pytest.mark.parametrize("tempo", [0.0, 0.6, INSTANTE_TITULO, INSTANTE_AVISO, 30.0])
+def test_button_during_fade_in_never_brightens_screen():
+    tela = TelaTitulo()
+    tela.atualizar(DURACAO_ENTRADA / 4)
+    antes = tela.opacidade_preto
+    tela.processar_botao()
+    tela.atualizar(0.01)
+
+    assert tela.opacidade_preto >= antes - 0.05
+
+
+@pytest.mark.parametrize("tempo", [0.0, 0.6, DURACAO_ENTRADA, 5.0, 30.0])
 def test_title_screen_renders_at_every_stage(tempo):
     pygame.font.init()
     tela = pygame.Surface((1280, 720))
@@ -79,4 +82,5 @@ def test_title_screen_renders_at_every_stage(tempo):
 
     tela_titulo.desenhar(tela)
 
-    assert tela.get_at((0, 0))[:3] != (0, 0, 0)
+    if tempo >= DURACAO_ENTRADA:
+        assert tela.get_at((0, 0))[:3] != (0, 0, 0)

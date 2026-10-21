@@ -14,9 +14,7 @@ PRIMEIRA_BATIDA = 1.2
 INTERVALO_BATIDA = 0.86
 ATRASO_SEGUNDA_BATIDA = 0.22
 FORCA_SEGUNDA_BATIDA = 0.55
-INSTANTE_TITULO = PRIMEIRA_BATIDA + 2 * INTERVALO_BATIDA
-INSTANTE_AVISO = 4.6
-DURACAO_FLASH_TITULO = 0.12
+DURACAO_ENTRADA = 1.5
 DURACAO_SAIDA = 0.5
 VELOCIDADE_PULSO = 130
 VELOCIDADE_ECG = 110
@@ -51,13 +49,17 @@ COR_BRILHO = (255, 70, 60)
 COR_ECG = (224, 48, 62)
 COR_PONTA_ECG = (255, 138, 106)
 COR_TITULO = (252, 227, 176)
-COR_TITULO_FLASH = (255, 255, 255)
 SOMBRAS_TITULO = ((8, (194, 40, 58)), (16, (74, 12, 24)))
 COR_MARCADOR_AVISO = (224, 48, 62)
 
 
 def arredondar(valor):
     return math.floor(valor + 0.5)
+
+
+def suavizar(progresso):
+    progresso = min(1.0, max(0.0, progresso))
+    return progresso * progresso * (3 - 2 * progresso)
 
 
 def batidas(tempo, janela):
@@ -263,12 +265,11 @@ class TelaTitulo:
         self._titulos_escalados = {}
 
     @property
-    def titulo_visivel(self):
-        return self.tempo >= INSTANTE_TITULO
-
-    @property
-    def aviso_visivel(self):
-        return self.tempo >= INSTANTE_AVISO
+    def opacidade_preto(self):
+        """Quanto de preto cobre a tela: 1 no início e na saída, 0 no meio."""
+        entrada = 1 - suavizar(self.tempo / DURACAO_ENTRADA)
+        saida = suavizar(self.tempo_saida / DURACAO_SAIDA) if self.saindo else 0.0
+        return max(entrada, saida)
 
     @property
     def saindo(self):
@@ -279,12 +280,8 @@ class TelaTitulo:
         return self.saindo and self.tempo_saida >= DURACAO_SAIDA
 
     def processar_botao(self):
-        if self.saindo:
-            return
-        if not self.aviso_visivel:
-            self.tempo = INSTANTE_AVISO
-            return
-        self.tempo_saida = 0.0
+        if not self.saindo:
+            self.tempo_saida = 0.0
 
     def atualizar(self, dt):
         self.tempo += dt
@@ -335,9 +332,6 @@ class TelaTitulo:
             "base": pygame.Surface((LARGURA_BASE, ALTURA_BASE)),
             "brilho": pygame.Surface((LARGURA_BASE, ALTURA_BASE)),
             "titulo": _texto_com_sombras(fonte_titulo, TEXTO_TITULO, COR_TITULO),
-            "titulo_flash": _texto_com_sombras(
-                fonte_titulo, TEXTO_TITULO, COR_TITULO_FLASH
-            ),
             "aviso": aviso,
             "escurecer": pygame.Surface(tamanho_tela),
         }
@@ -351,11 +345,11 @@ class TelaTitulo:
             self._coracoes[chave] = desenhar_coracao(chave / 10)
         return self._coracoes[chave]
 
-    def _titulo(self, flash, escala):
-        chave = (flash, arredondar(escala * 200))
+    def _titulo(self, escala):
+        chave = arredondar(escala * 200)
         if chave not in self._titulos_escalados:
-            original = self._recursos["titulo_flash" if flash else "titulo"]
-            fator = chave[1] / 200
+            original = self._recursos["titulo"]
+            fator = chave / 200
             tamanho = (
                 round(original.get_width() * fator),
                 round(original.get_height() * fator),
@@ -388,19 +382,12 @@ class TelaTitulo:
             lado = 1 if profundidade else 2
             base.fill(CORES_PULSO[cor], (x, y, lado, lado))
 
-    def _desenhar_brilho(self, base, tempo, intensidade):
+    def _desenhar_brilho(self, base, intensidade):
         centro = (CENTRO_CORACAO[0], CENTRO_CORACAO[1] - 2)
-        despertar = min(1.0, tempo / PRIMEIRA_BATIDA)
-        if tempo > PRIMEIRA_BATIDA:
-            raio = 30 + intensidade * 9
-            forca_geral = 1.0
-        else:
-            raio = 10 * despertar
-            forca_geral = 0.4
+        raio = 30 + intensidade * 9
         brilho = self._recursos["brilho"]
         for proporcao, alfa in ((1, 0.04), (0.72, 0.06), (0.46, 0.09), (0.26, 0.12)):
-            peso = alfa * forca_geral
-            cor = tuple(round(canal * peso) for canal in COR_BRILHO)
+            cor = tuple(round(canal * alfa) for canal in COR_BRILHO)
             raio_anel = arredondar(raio * proporcao)
             if raio_anel <= 0:
                 continue
@@ -424,12 +411,9 @@ class TelaTitulo:
 
         base.blit(recursos["fundo"], (0, 0))
         self._desenhar_veias(base, tempo)
-        self._desenhar_brilho(base, tempo, intensidade)
+        self._desenhar_brilho(base, intensidade)
 
         coracao, raio = self._coracao(TAMANHO_CORACAO * (1 + intensidade * 0.1))
-        if tempo < PRIMEIRA_BATIDA:
-            coracao = coracao.copy()
-            coracao.set_alpha(round(255 * (0.4 + 0.6 * tempo / PRIMEIRA_BATIDA)))
         base.blit(coracao, (CENTRO_CORACAO[0] - raio, CENTRO_CORACAO[1] - raio))
 
         self._desenhar_ecg(base, tempo)
@@ -437,23 +421,21 @@ class TelaTitulo:
 
         fator = recursos["fator"]
         largura_tela = tela.get_width()
-        if self.titulo_visivel:
-            flash = tempo - INSTANTE_TITULO < DURACAO_FLASH_TITULO
-            original = recursos["titulo"]
-            titulo = self._titulo(flash, 1 + intensidade * 0.05)
-            topo = 44 * fator
-            origem_y = topo + original.get_height() * 0.6
-            y = origem_y - titulo.get_height() * 0.6
-            tela.blit(titulo, ((largura_tela - titulo.get_width()) / 2, y))
+        original = recursos["titulo"]
+        titulo = self._titulo(1 + intensidade * 0.05)
+        origem_y = 44 * fator + original.get_height() * 0.6
+        y = origem_y - titulo.get_height() * 0.6
+        tela.blit(titulo, ((largura_tela - titulo.get_width()) / 2, y))
 
-        if self.aviso_visivel:
-            aviso = recursos["aviso"]
-            aviso.set_alpha(255 if intensidade > 0.25 else 64)
-            tela.blit(aviso, ((largura_tela - aviso.get_width()) / 2, 612 * fator))
+        aviso = recursos["aviso"]
+        aceso = tempo < PRIMEIRA_BATIDA or intensidade > 0.25
+        aviso.set_alpha(255 if aceso else 64)
+        tela.blit(aviso, ((largura_tela - aviso.get_width()) / 2, 612 * fator))
 
-        if self.saindo:
+        preto = self.opacidade_preto
+        if preto > 0:
             escurecer = recursos["escurecer"]
-            escurecer.set_alpha(round(255 * min(1.0, self.tempo_saida / DURACAO_SAIDA)))
+            escurecer.set_alpha(round(255 * preto))
             tela.blit(escurecer, (0, 0))
 
 
