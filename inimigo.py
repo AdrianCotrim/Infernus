@@ -10,7 +10,6 @@ ENEMY_ATTACK_RANGE = 38
 ENEMY_ATTACK_WIDTH = 34
 ENEMY_ATTACK_COOLDOWN = 0.8
 ENEMY_ATTACK_DAMAGE = 1
-ENEMY_ATTACK_KNOCKBACK = 260
 ENEMY_ATTACK_WINDUP = 0.55
 ENEMY_WINDUP_FLASH_START_INTERVAL = 0.22
 ENEMY_WINDUP_FLASH_END_INTERVAL = 0.07
@@ -18,7 +17,6 @@ ENEMY_ATTACK_DURATION = 0.22
 ENEMY_ATTACK_RECOVERY = 0.25
 ENEMY_ATTACK_SPEED = 240
 ENEMY_CONTACT_DAMAGE = 1
-ENEMY_CONTACT_KNOCKBACK = 200
 MAX_ENEMY_HEALTH = 3
 STUN_DURATION = 2.0
 ENEMY_KNOCKBACK_DECELERATION = 1200
@@ -37,12 +35,8 @@ class EstadoInimigo(Enum):
 class Inimigo:
     def __init__(self, x, y):
         self.rect = pygame.Rect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT)
-<<<<<<< HEAD
-        self.vida = 3
-=======
-        self.max_health = MAX_ENEMY_HEALTH
-        self.health = MAX_ENEMY_HEALTH
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
+        self.vida = MAX_ENEMY_HEALTH
+        self.max_vida = MAX_ENEMY_HEALTH
         self.estado = EstadoInimigo.NORMAL
         self.tempo_atordoado = 0.0
         self.tempo_ataque = 0.0
@@ -51,26 +45,17 @@ class Inimigo:
         self.tempo_flash_preparacao = 0.0
         self.flash_preparacao = False
         self.direcao = -1
-<<<<<<< HEAD
-        self.velocidade_knockback_x = 0.0
-=======
         self.ataque_direcao = 1
         self.ataque_hitbox = None
         self.ataque_atingiu_jogador = False
         self.velocidade_knockback_x = 0.0
         self.contato_cooldown = 0.0
         self.ataque_damage = ENEMY_ATTACK_DAMAGE
-        self.ataque_knockback = ENEMY_ATTACK_KNOCKBACK
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
 
     @property
     def vivo(self):
         return self.estado is not EstadoInimigo.DEAD
 
-<<<<<<< HEAD
-    def take_damage(self, amount):
-        self.vida = max(0, self.vida - amount)
-=======
     @property
     def piscando_preparacao(self):
         return (
@@ -83,54 +68,35 @@ class Inimigo:
         if not self.vivo or amount <= 0:
             return False
 
-        self.health = max(0, self.health - amount)
+        self.vida = max(0, self.vida - amount)
         if direction or knockback:
             self.apply_knockback(direction, knockback)
 
-        if self.health <= 0:
+        if self.vida == 0:
             self.estado = EstadoInimigo.DEAD
             self.tempo_atordoado = 0.0
             self.tempo_ataque = 0.0
             self.tempo_estado = 0.0
             self.ataque_hitbox = None
             self._encerrar_preparacao()
-            return True
 
         return True
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
 
     def apply_knockback(self, direction, force):
         self.velocidade_knockback_x = direction * force
 
     def _atualizar_knockback(self, dt):
-<<<<<<< HEAD
         self.rect.x += round(self.velocidade_knockback_x * dt)
         if self.velocidade_knockback_x > 0:
             self.velocidade_knockback_x = max(
                 0.0,
                 self.velocidade_knockback_x - ENEMY_KNOCKBACK_DECELERATION * dt,
-=======
-        if self.velocidade_knockback_x > 0:
-            self.velocidade_knockback_x = max(
-                0.0,
-                self.velocidade_knockback_x - 1200 * dt,
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
             )
         elif self.velocidade_knockback_x < 0:
             self.velocidade_knockback_x = min(
                 0.0,
-<<<<<<< HEAD
                 self.velocidade_knockback_x + ENEMY_KNOCKBACK_DECELERATION * dt,
             )
-
-    def _atualizar_stun(self, dt):
-        self.tempo_atordoado = max(0.0, self.tempo_atordoado - dt)
-        if self.tempo_atordoado == 0:
-            self.estado = EstadoInimigo.NORMAL
-=======
-                self.velocidade_knockback_x + 1200 * dt,
-            )
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
 
     def _hitbox_ataque(self):
         hitbox = pygame.Rect(
@@ -219,18 +185,11 @@ class Inimigo:
         return None
 
     def atualizar(self, dt, jogador_rect):
-<<<<<<< HEAD
-        if self.vida == 0:
-            return None
-
-=======
         if self.estado is EstadoInimigo.DEAD:
             return None
 
-        self._atualizar_knockback(dt)
         self.contato_cooldown = max(0.0, self.contato_cooldown - dt)
 
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
         if self.estado is EstadoInimigo.STUNNED:
             self._atualizar_stun(dt)
             return None

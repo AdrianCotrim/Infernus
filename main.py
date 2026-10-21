@@ -3,7 +3,7 @@ import pygame
 from alvo_teste import AlvoTeste
 from combate import SistemaAtaqueDash
 from hitbox import HitboxDash
-from inimigo import EstadoInimigo, Inimigo
+from inimigo import ENEMY_CONTACT_DAMAGE, EstadoInimigo, Inimigo
 from jogador import EstadoJogador, PLAYER_HEIGHT, PLAYER_WIDTH, Jogador
 from sistema_parry import ResultadoAtaque, SistemaParry
 from tela_titulo import executar_tela_titulo
@@ -90,9 +90,8 @@ def main():
         enemy_attack = enemy.atualizar(dt, player.rect)
         if enemy.rect.colliderect(player.rect) and enemy.vivo and enemy.contato_cooldown == 0:
             player.take_damage(
-                1,
+                ENEMY_CONTACT_DAMAGE,
                 1 if enemy.rect.centerx < player.rect.centerx else -1,
-                200,
             )
             enemy.contato_cooldown = 0.5
         attack_result = parry_system.resolver(enemy_attack, player, enemy)
