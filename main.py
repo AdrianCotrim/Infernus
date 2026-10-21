@@ -6,6 +6,7 @@ from hitbox import HitboxDash
 from inimigo import EstadoInimigo, Inimigo
 from jogador import EstadoJogador, PLAYER_HEIGHT, PLAYER_WIDTH, Jogador
 from sistema_parry import ResultadoAtaque, SistemaParry
+from tela_titulo import executar_tela_titulo
 
 WIDTH = 1280
 HEIGHT = 720
@@ -30,6 +31,9 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption("Infernus Prototype")
     clock = pygame.time.Clock()
+    if not executar_tela_titulo(screen, clock):
+        pygame.quit()
+        return
     running = True
 
     player = Jogador(
