@@ -1,6 +1,6 @@
 import pygame
 
-from inimigo import (
+from infernus.entidades.inimigo import (
     ENEMY_ATTACK_COOLDOWN,
     ENEMY_ATTACK_DURATION,
     ENEMY_ATTACK_RECOVERY,
@@ -11,8 +11,8 @@ from inimigo import (
     EstadoInimigo,
     Inimigo,
 )
-from jogador import EstadoJogador, Jogador, PARRY_DURATION
-from sistema_parry import ResultadoAtaque, SistemaParry
+from infernus.entidades.jogador import EstadoJogador, Jogador, PARRY_DURATION
+from infernus.combate.parry import ResultadoAtaque, SistemaParry
 
 
 def test_attack_during_parry_does_not_damage_player_and_stuns_enemy():
@@ -102,7 +102,6 @@ def test_enemy_moves_toward_player_and_attacks_when_in_range():
     assert attack.colliderect(player)
 
 
-<<<<<<< HEAD
 def test_enemy_damage_and_knockback_stop_its_ai_until_impulse_ends():
     player = pygame.Rect(200, 100, 40, 60)
     enemy = Inimigo(150, 105)
@@ -115,7 +114,8 @@ def test_enemy_damage_and_knockback_stop_its_ai_until_impulse_ends():
     assert enemy.vida == 2
     assert enemy.rect.x < initial_x
     assert attack is None
-=======
+
+
 def test_windup_flashes_faster_then_resets_when_attack_starts():
     player = pygame.Rect(200, 100, 40, 60)
     enemy = Inimigo(180, 105)
@@ -176,4 +176,3 @@ def test_windup_flash_stops_when_enemy_dies():
     assert enemy.estado is EstadoInimigo.DEAD
     assert not enemy.piscando_preparacao
     assert enemy.atualizar(0.2, player) is None
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce

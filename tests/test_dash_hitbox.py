@@ -1,9 +1,9 @@
 import pygame
 
-from combate import DASH_DAMAGE, DASH_KNOCKBACK, SistemaAtaqueDash
-from hitbox import HitboxDash
-from jogador import DASH_DURATION, EstadoJogador, Jogador
-from alvo_teste import AlvoTeste
+from infernus.combate.ataque_dash import DASH_DAMAGE, DASH_KNOCKBACK, SistemaAtaqueDash
+from infernus.combate.hitbox import HitboxDash
+from infernus.entidades.jogador import DASH_DURATION, EstadoJogador, Jogador
+from infernus.entidades.alvo_teste import AlvoTeste
 
 
 class DummyTarget:

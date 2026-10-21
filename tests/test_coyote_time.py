@@ -1,6 +1,6 @@
 import pytest
 
-from jogador import COYOTE_TIME, Jogador
+from infernus.entidades.jogador import COYOTE_TIME, Jogador
 
 
 def test_coyote_timer_starts_when_grounded():

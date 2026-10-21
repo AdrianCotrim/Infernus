@@ -1,14 +1,20 @@
 import bisect
 import math
 import random
-from pathlib import Path
-
 import pygame
+
+from infernus.config import (
+    ALTURA_TELA,
+    FPS,
+    LARGURA_TELA,
+    PASTA_FONTES,
+    TITULO_JANELA,
+)
 
 
 LARGURA_BASE = 320
 ALTURA_BASE = 180
-LARGURA_REFERENCIA = 1280
+LARGURA_REFERENCIA = LARGURA_TELA
 
 PRIMEIRA_BATIDA = 1.2
 INTERVALO_BATIDA = 0.86
@@ -24,7 +30,6 @@ ALCANCE_PULSO = 21
 CENTRO_CORACAO = (160, 116)
 TAMANHO_CORACAO = 13
 
-PASTA_FONTES = Path(__file__).parent / "assets" / "fonts"
 FONTE_TITULO = PASTA_FONTES / "Jersey25-Regular.ttf"
 FONTE_AVISO = PASTA_FONTES / "Silkscreen-Regular.ttf"
 TEXTO_TITULO = "INFERNUS"
@@ -448,7 +453,7 @@ def executar_tela_titulo(tela, relogio):
     tela_titulo = TelaTitulo()
 
     while not tela_titulo.concluida:
-        dt = relogio.tick(60) / 1000
+        dt = relogio.tick(FPS) / 1000
 
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT:
@@ -471,7 +476,7 @@ def executar_tela_titulo(tela, relogio):
 
 if __name__ == "__main__":
     pygame.init()
-    janela = pygame.display.set_mode((1280, 720))
-    pygame.display.set_caption("Infernus")
+    janela = pygame.display.set_mode((LARGURA_TELA, ALTURA_TELA))
+    pygame.display.set_caption(TITULO_JANELA)
     executar_tela_titulo(janela, pygame.time.Clock())
     pygame.quit()

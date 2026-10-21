@@ -6,7 +6,8 @@ aventura se passa dentro de um corpo, onde cada sala é um órgão, até o chefe
 cérebro.
 
 O design completo (escopo, arte, história, inimigos, mapa e roadmap) está em
-[docs/GDD.md](docs/GDD.md).
+[docs/GDD.md](docs/GDD.md). O [CLAUDE.md](CLAUDE.md) resume o contexto do jogo
+e as convenções do código para quem for contribuir, pessoa ou IA.
 
 ## Executar
 
@@ -30,8 +31,9 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
-O jogo abre na tela de título. Para ver só a tela de título, rode
-`python tela_titulo.py`. Para fechar, feche a janela do jogo.
+O jogo abre na tela de título. Também dá para rodar com `python -m infernus`.
+Para ver só a tela de título, rode `python -m infernus.telas.titulo`. Para
+fechar, feche a janela do jogo.
 
 ## Testes
 
@@ -42,19 +44,19 @@ python -m pytest
 
 ## Estrutura
 
-| Arquivo            | Responsabilidade |
-| ------------------ | ---------------- |
-| `main.py`          | Janela, loop principal e desenho da fase de teste. |
-| `tela_titulo.py`   | Tela de título animada (coração pulsante). |
-| `jogador.py`       | Movimento, pulo, dash, parry, vida e knockback do jogador. |
-| `inimigo.py`       | Inimigo 1: perseguição, preparação, ataque e atordoamento. |
-| `combate.py`       | Dano e knockback da investida (dash) nos inimigos. |
-| `sistema_parry.py` | Resolução dos ataques inimigos contra o parry. |
-| `hitbox.py`        | Hitbox do dash à frente do jogador. |
-| `alvo_teste.py`    | Alvo usado para validar a hitbox do dash. |
-| `assets/fonts/`    | Fontes da interface (licença SIL OFL). |
-| `docs/GDD.md`      | Game Design Document. |
-| `tests/`           | Testes automatizados (pytest). |
+```
+main.py                  atalho para iniciar o jogo
+infernus/                pacote do jogo
+  jogo.py                abre a janela e encadeia tela de título e fase
+  config.py              resolução, FPS, título da janela e caminhos de assets
+  entidades/             jogador, inimigo e alvo de teste
+  combate/               investida (dash), hitbox e parry
+  telas/                 tela de título
+  fases/                 fases jogáveis (por enquanto, a fase de teste)
+assets/fonts/            fontes da interface (licença SIL OFL)
+docs/                    GDD e imagens de referência
+tests/                   testes automatizados (pytest)
+```
 
 ## Tela de título
 
@@ -69,7 +71,7 @@ jogo.
 
 A cena é desenhada em 320×180 e ampliada 4× para 1280×720, para manter os pixels
 do mesmo tamanho. Os tempos, as cores e as posições são constantes no topo de
-`tela_titulo.py`.
+`infernus/telas/titulo.py`.
 
 ## Controles
 
@@ -80,7 +82,7 @@ do mesmo tamanho. Os tempos, as cores e as posições são constantes no topo de
 - Parry: W ou seta para cima.
 
 O dash tem duração de `DASH_DURATION` e cooldown de `DASH_COOLDOWN`, ambos
-configurados em `jogador.py`. Durante o cooldown, o personagem aparece em laranja
+configurados em `infernus/entidades/jogador.py`. Durante o cooldown, o personagem aparece em laranja
 e o dash não pode ser iniciado.
 
 Dash e parry têm estados próprios. O parry abre uma janela de `PARRY_DURATION`
@@ -94,13 +96,15 @@ próprio alvo. O alvo de teste existe para validar essa integração.
 
 Ao receber dano do inimigo, o jogador entra temporariamente em knockback:
 `KNOCKBACK_SPEED`, `KNOCKBACK_VERTICAL_FORCE` e `KNOCKBACK_DURATION`, em
-`jogador.py`, controlam a intensidade e a duração da reação. Durante esse estado,
+`infernus/entidades/jogador.py`, controlam a intensidade e a duração da reação. Durante esse estado,
 o impulso continua respeitando a gravidade e as colisões, mas o controle
-horizontal fica bloqueado até a recuperação automática.
+horizontal fica bloqueado até a recuperação automática. Depois do dano, o jogador
+fica invulnerável por `INVULNERABILITY_DURATION` e pisca em branco.
 
 Durante o dash, acertar o inimigo interrompe imediatamente a investida e posiciona
 o jogador antes do inimigo, evitando atravessá-lo. O inimigo recebe `DASH_DAMAGE`
-e o knockback configurado por `DASH_KNOCKBACK` em `combate.py`; o cooldown do dash
+e o knockback configurado por `DASH_KNOCKBACK` em
+`infernus/combate/ataque_dash.py`; o cooldown do dash
 é preservado e o mesmo inimigo não pode ser atingido novamente pela mesma
 investida.
 

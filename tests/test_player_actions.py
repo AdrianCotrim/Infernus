@@ -1,7 +1,7 @@
 import pygame
 import pytest
 
-from jogador import (
+from infernus.entidades.jogador import (
     DASH_COOLDOWN,
     DASH_DURATION,
     KNOCKBACK_DURATION,
