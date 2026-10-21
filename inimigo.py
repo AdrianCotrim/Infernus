@@ -37,12 +37,8 @@ class EstadoInimigo(Enum):
 class Inimigo:
     def __init__(self, x, y):
         self.rect = pygame.Rect(x, y, ENEMY_WIDTH, ENEMY_HEIGHT)
-<<<<<<< HEAD
-        self.vida = 3
-=======
         self.max_health = MAX_ENEMY_HEALTH
         self.health = MAX_ENEMY_HEALTH
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
         self.estado = EstadoInimigo.NORMAL
         self.tempo_atordoado = 0.0
         self.tempo_ataque = 0.0
@@ -51,9 +47,6 @@ class Inimigo:
         self.tempo_flash_preparacao = 0.0
         self.flash_preparacao = False
         self.direcao = -1
-<<<<<<< HEAD
-        self.velocidade_knockback_x = 0.0
-=======
         self.ataque_direcao = 1
         self.ataque_hitbox = None
         self.ataque_atingiu_jogador = False
@@ -61,16 +54,15 @@ class Inimigo:
         self.contato_cooldown = 0.0
         self.ataque_damage = ENEMY_ATTACK_DAMAGE
         self.ataque_knockback = ENEMY_ATTACK_KNOCKBACK
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
 
     @property
     def vivo(self):
         return self.estado is not EstadoInimigo.DEAD
 
-<<<<<<< HEAD
-    def take_damage(self, amount):
-        self.vida = max(0, self.vida - amount)
-=======
+    @property
+    def vida(self):
+        return self.health
+
     @property
     def piscando_preparacao(self):
         return (
@@ -97,40 +89,22 @@ class Inimigo:
             return True
 
         return True
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
 
     def apply_knockback(self, direction, force):
         self.velocidade_knockback_x = direction * force
 
     def _atualizar_knockback(self, dt):
-<<<<<<< HEAD
         self.rect.x += round(self.velocidade_knockback_x * dt)
         if self.velocidade_knockback_x > 0:
             self.velocidade_knockback_x = max(
                 0.0,
-                self.velocidade_knockback_x - ENEMY_KNOCKBACK_DECELERATION * dt,
-=======
-        if self.velocidade_knockback_x > 0:
-            self.velocidade_knockback_x = max(
-                0.0,
                 self.velocidade_knockback_x - 1200 * dt,
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
             )
         elif self.velocidade_knockback_x < 0:
             self.velocidade_knockback_x = min(
                 0.0,
-<<<<<<< HEAD
-                self.velocidade_knockback_x + ENEMY_KNOCKBACK_DECELERATION * dt,
-            )
-
-    def _atualizar_stun(self, dt):
-        self.tempo_atordoado = max(0.0, self.tempo_atordoado - dt)
-        if self.tempo_atordoado == 0:
-            self.estado = EstadoInimigo.NORMAL
-=======
                 self.velocidade_knockback_x + 1200 * dt,
             )
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
 
     def _hitbox_ataque(self):
         hitbox = pygame.Rect(
@@ -219,18 +193,12 @@ class Inimigo:
         return None
 
     def atualizar(self, dt, jogador_rect):
-<<<<<<< HEAD
-        if self.vida == 0:
-            return None
-
-=======
         if self.estado is EstadoInimigo.DEAD:
             return None
 
         self._atualizar_knockback(dt)
         self.contato_cooldown = max(0.0, self.contato_cooldown - dt)
 
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
         if self.estado is EstadoInimigo.STUNNED:
             self._atualizar_stun(dt)
             return None

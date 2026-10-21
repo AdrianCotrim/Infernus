@@ -54,14 +54,13 @@ class SistemaParry:
             inimigo.cancelar_ataque()
             return ResultadoAtaque.APARADO
 
-<<<<<<< HEAD
-        direcao_knockback = self._direcao_knockback(ataque_rect, jogador, inimigo)
-        jogador.take_damage(ENEMY_ATTACK_DAMAGE, direcao_knockback)
-=======
         dano = getattr(inimigo, "ataque_damage", ENEMY_ATTACK_DAMAGE)
-        direcao = getattr(inimigo, "ataque_direcao", 1 if inimigo.rect.centerx < jogador.rect.centerx else -1)
+        direcao = -getattr(
+            inimigo,
+            "ataque_direcao",
+            1 if inimigo.rect.centerx < jogador.rect.centerx else -1,
+        )
         knockback = getattr(inimigo, "ataque_knockback", ENEMY_ATTACK_KNOCKBACK)
         jogador.take_damage(dano, direcao, knockback)
         inimigo.ataque_atingiu_jogador = True
->>>>>>> 249f2f5250e80dd6a6eea8baf7b552f1e19868ce
         return ResultadoAtaque.DANO
