@@ -135,6 +135,7 @@ infernus/
 assets/fonts/            Jersey 25 e Silkscreen (licença SIL OFL)
 docs/GDD.md              Game Design Document
 docs/referencias/        imagens de referência do GDD
+docs/imagens/            imagens do README
 tests/                   testes com pytest
 ```
 
